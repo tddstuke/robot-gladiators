@@ -4,63 +4,74 @@
 // *defeat each enemy-robot
 // "lose" - Player robot's health is zero or less
 
-var fight = function (enemyInfo) {
+var fightOrSkip = function () {
+  var promptFight = window.prompt(
+    "Would you like to FIGHT of SKIP this battle? Enter FIGHT or SKIP to choose"
+  );
+
+  if (promptFight === "" || promptFight === null) {
+    window.alert("You need to provide a valid answer! Please try again.");
+    return fightOrSkip();
+  }
+
+  // if player pick skip confirm and then stop the loop
+  promptFight = promptFight.toLocaleLowerCase();
+  if (promptFight === "skip" || promptFight === "SKIP") {
+    var confirmSkip = window.confirm("Are you sure you'd like to quit?");
+
+    if (confirmSkip) {
+      window.alert(
+        playerInfo.name + " has decided to skip this fight. Goodbye!"
+      );
+      // subract money from playermoney for skipping
+      playerInfo.money = Math.max(0, playerInfo.money - 10);
+      // return true if player wants to leave
+      return true;
+    } else {
+      return false;
+    }
+  }
+};
+
+var fight = function (enemy) {
   // repeat and execute as long as the enemy robot is alive
-  while (playerInfo.health > 0 && enemyInfo.health > 0) {
-    // alert players that they are starting the round
-    var promptFight = window.prompt(
-      "would you like to FIGHT or SKIP this battle? Enter 'FIGHT' or 'SKIP' to choose."
-    );
-
-    // if player chooses to skip
-    if (promptFight === "skip" || promptFight === "SKIP") {
-      // confirm player wants to skip
-      var confirmSkip = window.confirm("Are you sure you'd like to quit?");
-
-      // if yes (true), leave fight
-      if (confirmSkip) {
-        window.alert(
-          playerInfo.name + " has decided to skip this fight. Goodbye!"
-        );
-        // subtract money from playerInfo.money for skipping
-        playerInfo.money = Math.max(0, playerInfo.money - 10);
-        console.log("playerInfo.money", playerInfo.money);
-        break;
-      }
+  while (playerInfo.health > 0 && enemy.health > 0) {
+    if (fightOrSkip()) {
+      break;
     }
 
     //   subtract the value of 'playerInfo.attack' from the value of 'enemyInfo.health' and use that result to update the value in the 'enemyInfo.health' variable
     var damage = randomNumber(playerInfo.attack - 3, playerInfo.attack);
-    enemyInfo.health = Math.max(0, enemyInfo.health - damage);
+    enemy.health = Math.max(0, enemy.health - damage);
     // Log a resulting message to the consoleso we know that it worked
     console.log(
       playerInfo.name +
         " attacked " +
-        enemyInfo.name +
+        enemy.name +
         ". " +
-        enemyInfo.name +
+        enemy.name +
         " now has " +
-        enemyInfo.health +
+        enemy.health +
         " health remaining."
     );
 
     // check enemy's health
-    if (enemyInfo.health <= 0) {
-      window.alert(enemyInfo.name + " has died!");
+    if (enemy.health <= 0) {
+      window.alert(enemy.name + " has died!");
+
+      playerInfo.money = playerInfo.money + 20;
       break;
     } else {
-      window.alert(
-        enemyInfo.name + " still has " + enemyInfo.health + " health left."
-      );
+      window.alert(enemy.name + " still has " + enemy.health + " health left.");
     }
 
     // Subtract the value of 'enemyInfo.attack' from the value of 'playerInfo.health'and use that result  to update the value in 'playerInfo.health' variable
-    var damage = randomNumber(enemyInfo.attack - 3, enemyInfo.attack);
+    var damage = randomNumber(enemy.attack - 3, enemy.attack);
     playerInfo.health = Math.max(0, playerInfo.health - damage);
 
     // log a resulting message to the console so we know that it worked
     console.log(
-      enemyInfo.name +
+      enemy.name +
         " attacked " +
         playerInfo.name +
         ". " +
@@ -171,17 +182,16 @@ var randomNumber = function (min, max) {
 };
 
 // function to set name
-var getPlayerName = function() {
+var getPlayerName = function () {
   var name = "";
 
-while (name === "" || name === null) {
-  name = prompt("What is your robot's name?");
-}
-
+  while (name === "" || name === null) {
+    name = prompt("What is your robot's name?");
+  }
 
   console.log("Your robot's name is " + name);
   return name;
-}
+};
 
 var playerInfo = {
   name: getPlayerName(),
